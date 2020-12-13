@@ -7,11 +7,37 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] Transform tf_Crosshair;
 
+    [SerializeField] Transform tf_Cam;
+
+    [SerializeField] float sightSensivitity; // 고개의 움직임 속도
+    [SerializeField] float lookLimitX;
+    [SerializeField] float lookLimitY;
+    float currentAngleX;
+    float currentAngleY;
+
 
     // Update is called once per frame
     void Update()
     {
         CrosshairMoving();
+        ViewMoving();
+    }
+
+    void ViewMoving()
+    {
+        if (tf_Crosshair.localPosition.x > (Screen.width / 2 - 50) || tf_Crosshair.localPosition.x < (-Screen.width / 2 + 50))
+        {
+            currentAngleY += (tf_Crosshair.localPosition.x > 0) ? sightSensivitity : -sightSensivitity;
+            currentAngleY = Mathf.Clamp(currentAngleY, -lookLimitX, lookLimitX);
+            tf_Cam.localEulerAngles = new Vector3(currentAngleX, currentAngleY, tf_Cam.localEulerAngles.z);
+        }
+
+        if (tf_Crosshair.localPosition.y > (Screen.height / 2 - 50) || tf_Crosshair.localPosition.y < (-Screen.height / 2 + 50))
+        {
+            currentAngleX += (tf_Crosshair.localPosition.y > 0) ? -sightSensivitity : sightSensivitity;
+            currentAngleX = Mathf.Clamp(currentAngleX, -lookLimitY, lookLimitY);
+            tf_Cam.localEulerAngles = new Vector3(currentAngleX, currentAngleY, tf_Cam.localEulerAngles.z);
+        }
     }
 
     void CrosshairMoving()
