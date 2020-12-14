@@ -10,11 +10,26 @@ public class InteractionController : MonoBehaviour
 
     [SerializeField] GameObject go_NomalCrosshair;
     [SerializeField] GameObject go_InteractiveCrosshair;
+    [SerializeField] GameObject go_Crosshair; //crosshair의 부모객체
+    [SerializeField] GameObject go_Cursor;
 
     bool isContact = false;
-    bool isInteract = false;
+    public static bool isInteract = false;
 
     [SerializeField] ParticleSystem ps_QuestionEffect;
+
+    DialogueManager theDM;
+
+    public void HideUI()
+    {
+        go_Crosshair.SetActive(false);
+        go_Cursor.SetActive(false);
+    }
+
+    private void Start()
+    {
+        theDM = FindObjectOfType<DialogueManager>(); // 게임 오브젝트중 DialogueManger을 가지고 있는 오브젝트들을 찾는다.
+    }
 
     // Update is called once per frame
     void Update()
@@ -66,11 +81,14 @@ public class InteractionController : MonoBehaviour
 
     void ClickLeftButton()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!isInteract)
         {
-            if (isContact)
+            if (Input.GetMouseButtonDown(0))
             {
-                Interact();
+                if (isContact)
+                {
+                    Interact();
+                }
             }
         }
     }
@@ -83,5 +101,15 @@ public class InteractionController : MonoBehaviour
         Vector3 t_targetPos = hitInfo.transform.position;
         ps_QuestionEffect.GetComponent<QuestionEffect>().SetTarget(t_targetPos);
         ps_QuestionEffect.transform.position = cam.transform.position;
+
+        StartCoroutine(WaitCollision());
+    }
+
+    IEnumerator WaitCollision()
+    {
+        yield return new WaitUntil(()=>QuestionEffect.isCollide); //특정 조건을 만족할때까지 대기
+        QuestionEffect.isCollide = false;
+
+        theDM.ShowDialogue();
     }
 }

@@ -32,11 +32,14 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CrosshairMoving();
-        ViewMoving();
-        KeyViewMoving();
-        CameraLimit();
-        NotCamUI();
+        if (!InteractionController.isInteract)
+        {
+            CrosshairMoving();
+            ViewMoving();
+            KeyViewMoving();
+            CameraLimit();
+            NotCamUI();
+        }
     }
 
     void NotCamUI()
