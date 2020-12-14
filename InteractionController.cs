@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InteractionController : MonoBehaviour
 {
@@ -12,11 +13,16 @@ public class InteractionController : MonoBehaviour
     [SerializeField] GameObject go_InteractiveCrosshair;
     [SerializeField] GameObject go_Crosshair; //crosshair의 부모객체
     [SerializeField] GameObject go_Cursor;
+    [SerializeField] GameObject go_TargetNameBar;
+    [SerializeField] Text targetName;
 
     bool isContact = false;
     public static bool isInteract = false;
 
     [SerializeField] ParticleSystem ps_QuestionEffect;
+
+    [SerializeField] Image img_Interaction;
+    [SerializeField] Image img_InteractionEffect;
 
     DialogueManager theDM;
 
@@ -24,6 +30,7 @@ public class InteractionController : MonoBehaviour
     {
         go_Crosshair.SetActive(false);
         go_Cursor.SetActive(false);
+        go_TargetNameBar.SetActive(false);
     }
 
     private void Start()
@@ -34,7 +41,10 @@ public class InteractionController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckObject();
+        if (!isInteract)
+        {
+            CheckObject();
+        }
     }
 
     void CheckObject()
@@ -56,11 +66,17 @@ public class InteractionController : MonoBehaviour
     {
         if (hitInfo.transform.CompareTag("Interaction"))
         {
+            go_TargetNameBar.SetActive(true);
+            targetName.text = hitInfo.transform.GetComponent<InteractionType>().GetName();
             if (!isContact)
             {
                 isContact = true;
                 go_InteractiveCrosshair.SetActive(true);
                 go_NomalCrosshair.SetActive(false);
+                StopCoroutine("Interaction");
+                StopCoroutine("InteractionEffect");
+                StartCoroutine("Interaction", true);
+                StartCoroutine("InteractionEffect");
             }
         }
         else
@@ -73,9 +89,12 @@ public class InteractionController : MonoBehaviour
     {
         if (isContact)
         {
+            go_TargetNameBar.SetActive(false);
             isContact = false;
             go_InteractiveCrosshair.SetActive(false);
             go_NomalCrosshair.SetActive(true);
+            StopCoroutine("Interaction");
+            StartCoroutine("Interaction", false);
         }
     }
 
@@ -93,9 +112,61 @@ public class InteractionController : MonoBehaviour
         }
     }
 
+    IEnumerator Interaction(bool p_Appear)
+    {
+        Color color = img_Interaction.color;
+        if (p_Appear)
+        {
+            color.a = 0;
+            while (color.a < 1)
+            {
+                color.a += 0.1f;
+                img_Interaction.color = color;
+                yield return null;
+            }
+        }
+        else
+        {
+            while (color.a > 0)
+            {
+                color.a -= 0.1f;
+                img_Interaction.color = color;
+                yield return null;
+            }
+        }
+    }
+
+    IEnumerator InteractionEffect()
+    {
+        while(isContact && !isInteract)
+        {
+            Color color = img_InteractionEffect.color;
+            color.a = 0.5f; //반투명
+
+            img_InteractionEffect.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
+            Vector3 t_scale = img_InteractionEffect.transform.localScale;
+
+            while (color.a > 0)
+            {
+                color.a -= 0.01f;
+                img_InteractionEffect.color = color;
+                t_scale.Set(t_scale.x + Time.deltaTime, t_scale.y + Time.deltaTime, t_scale.z + Time.deltaTime);
+                img_InteractionEffect.transform.localScale = t_scale;
+                yield return null; // 한프레임 대기
+            }
+            yield return null;
+        }
+    }
+
+
     void Interact()
     {
         isInteract = true;
+
+        StopCoroutine("Interaction");
+        Color color = img_Interaction.color;
+        color.a = 0;
+        img_Interaction.color = color;
 
         ps_QuestionEffect.gameObject.SetActive(true);
         Vector3 t_targetPos = hitInfo.transform.position;
