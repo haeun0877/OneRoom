@@ -181,6 +181,6 @@ public class InteractionController : MonoBehaviour
         yield return new WaitUntil(()=>QuestionEffect.isCollide); //특정 조건을 만족할때까지 대기
         QuestionEffect.isCollide = false;
 
-        theDM.ShowDialogue();
+        theDM.ShowDialogue(hitInfo.transform.GetComponent<InteractionEvent>().GetDialogues());
     }
 }
