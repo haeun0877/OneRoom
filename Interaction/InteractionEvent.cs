@@ -8,8 +8,17 @@ public class InteractionEvent : MonoBehaviour
 
     public Dialogue[] GetDialogues()
     {
-        dialogue.dialogues = DatabaseManager.instance.GetDialogues((int)dialogue.line.x, (int)dialogue.line.y);
-        return dialogue.dialogues;
+        DialogueEvent t_DialogueEvent = new DialogueEvent();
+        t_DialogueEvent.dialogues = DatabaseManager.instance.GetDialogues((int)dialogue.line.x, (int)dialogue.line.y);
+
+
+        for (int i = 0; i < dialogue.dialogues.Length; i++)
+        {
+            t_DialogueEvent.dialogues[i].tf_Target = dialogue.dialogues[i].tf_Target;
+        }
+
+        dialogue.dialogues = t_DialogueEvent.dialogues;
+         return dialogue.dialogues;
     }
 
 }

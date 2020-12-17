@@ -23,10 +23,12 @@ public class DialogueManager : MonoBehaviour
     int contextCount = 0; //대사카운트(봉란이 한명이 여러번을 말할 수 있음)
 
     InteractionController theIC;
+    CameraController theCam;
 
     private void Start()
     {
         theIC = FindObjectOfType<InteractionController>();
+        theCam = FindObjectOfType<CameraController>();
     }
 
     private void Update()
@@ -48,6 +50,7 @@ public class DialogueManager : MonoBehaviour
                         contextCount = 0;
                         if (++lineCount < dialogues.Length)
                         {
+                            theCam.CameraTargetting(dialogues[lineCount].tf_Target);
                             StartCoroutine(TypeWriter());
                         }
                         else
@@ -67,7 +70,7 @@ public class DialogueManager : MonoBehaviour
         txt_Name.text = "";
         theIC.SettingUI(false);
         dialogues = p_dialogues;
-
+        theCam.CameraTargetting(dialogues[lineCount].tf_Target);
         StartCoroutine(TypeWriter());
     }
 
