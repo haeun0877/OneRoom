@@ -15,6 +15,7 @@ public class InteractionEvent : MonoBehaviour
         for (int i = 0; i < dialogue.dialogues.Length; i++)
         {
             t_DialogueEvent.dialogues[i].tf_Target = dialogue.dialogues[i].tf_Target;
+            t_DialogueEvent.dialogues[i].cameraType = dialogue.dialogues[i].cameraType;
         }
 
         dialogue.dialogues = t_DialogueEvent.dialogues;

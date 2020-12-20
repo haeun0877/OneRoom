@@ -24,6 +24,12 @@ public class PlayerController : MonoBehaviour
 
     float originPosY;
 
+    public void Reset()
+    {
+        currentAngleX = 0;
+        currentAngleY = 0;
+    }
+
     void Start()
     {
         originPosY = tf_Cam.localPosition.y;
