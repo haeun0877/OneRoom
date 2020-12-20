@@ -18,10 +18,13 @@ public class DialogueParser : MonoBehaviour
             Dialogue dialogue = new Dialogue();
             dialogue.name = row[1];
             List<string> contextList = new List<string>(); //Dilogue context는 배열로 선언되어있기때문에 그냥 넣으면 오류, list형태로 바꿔서 넣어야함
+            List<string> spriteList = new List<string>();
 
             do // 한 캐릭터가 여러번 말할경우를 대비하여 ( id나 네임이 공백인경우는 계속 대사만 추가함)
             {
                 contextList.Add(row[2]); //대사 추가
+                spriteList.Add(row[3]); //스프라이트추가
+
                 if (++i < data.Length)
                 {
                     row = data[i].Split(new char[] { ',' });
@@ -34,7 +37,7 @@ public class DialogueParser : MonoBehaviour
             } while (row[0].ToString()=="");
 
             dialogue.contexts = contextList.ToArray();
-
+            dialogue.spriteName = spriteList.ToArray();
             dialogueList.Add(dialogue);
 
         }

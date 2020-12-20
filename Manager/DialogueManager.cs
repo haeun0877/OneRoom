@@ -24,11 +24,13 @@ public class DialogueManager : MonoBehaviour
 
     InteractionController theIC;
     CameraController theCam;
+    SpriteManager theSpriteManager;
 
     private void Start()
     {
         theIC = FindObjectOfType<InteractionController>();
         theCam = FindObjectOfType<CameraController>();
+        theSpriteManager = FindObjectOfType<SpriteManager>();
     }
 
     private void Update()
@@ -50,8 +52,7 @@ public class DialogueManager : MonoBehaviour
                         contextCount = 0;
                         if (++lineCount < dialogues.Length)
                         {
-                            theCam.CameraTargetting(dialogues[lineCount].tf_Target);
-                            StartCoroutine(TypeWriter());
+                            CameraTargettingType();
                         }
                         else
                         {
@@ -70,7 +71,17 @@ public class DialogueManager : MonoBehaviour
         txt_Name.text = "";
         theIC.SettingUI(false);
         dialogues = p_dialogues;
-        theCam.CameraTargetting(dialogues[lineCount].tf_Target);
+        theCam.CamOriginSetting();
+        CameraTargettingType();
+    }
+
+    void CameraTargettingType()
+    {
+        switch (dialogues[lineCount].cameraType)
+        {
+            case CameraType.ObjectFront: theCam.CameraTargetting(dialogues[lineCount].tf_Target); break;
+            case CameraType.Reset:theCam.CameraTargetting(null, 0.05f, true, false); break;
+        }
         StartCoroutine(TypeWriter());
     }
 
@@ -81,13 +92,23 @@ public class DialogueManager : MonoBehaviour
         lineCount = 0;
         dialogues = null;
         isNext = false;
-        theIC.SettingUI(true);
+        theCam.CameraTargetting(null, 0.05f, true, true);
+
         SettingUI(false);
+    }
+
+    void ChaneSprite()
+    {
+        if (dialogues[lineCount].spriteName[contextCount] != "")
+        {
+            StartCoroutine(theSpriteManager.SpriteChangeSoroutine(dialogues[lineCount].tf_Target, dialogues[lineCount].spriteName[contextCount].Trim()));
+        }
     }
 
     IEnumerator TypeWriter() // 텍스트 출력 코루틴
     {
         SettingUI(true);
+        ChaneSprite();
 
         string t_ReplaceText = dialogues[lineCount].contexts[contextCount];
         t_ReplaceText = t_ReplaceText.Replace("'", ","); // 특정 문자열을바꿈 ( '를 ,로 바꿈)
