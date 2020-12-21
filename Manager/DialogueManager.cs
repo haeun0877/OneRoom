@@ -25,12 +25,14 @@ public class DialogueManager : MonoBehaviour
     InteractionController theIC;
     CameraController theCam;
     SpriteManager theSpriteManager;
+    SplashManager theSplashManager;
 
     private void Start()
     {
         theIC = FindObjectOfType<InteractionController>();
         theCam = FindObjectOfType<CameraController>();
         theSpriteManager = FindObjectOfType<SpriteManager>();
+        theSplashManager = FindObjectOfType<SplashManager>();
     }
 
     private void Update()
@@ -52,7 +54,7 @@ public class DialogueManager : MonoBehaviour
                         contextCount = 0;
                         if (++lineCount < dialogues.Length)
                         {
-                            CameraTargettingType();
+                            StartCoroutine(CameraTargettingType());
                         }
                         else
                         {
@@ -72,13 +74,17 @@ public class DialogueManager : MonoBehaviour
         theIC.SettingUI(false);
         dialogues = p_dialogues;
         theCam.CamOriginSetting();
-        CameraTargettingType();
+        StartCoroutine(CameraTargettingType());
     }
 
-    void CameraTargettingType()
+    IEnumerator CameraTargettingType()
     {
         switch (dialogues[lineCount].cameraType)
         {
+            case CameraType.FadeIn: SettingUI(false); SplashManager.isfinished = false;  StartCoroutine(theSplashManager.FadeIn(false, true)); yield return new WaitUntil(() => SplashManager.isfinished); break;
+            case CameraType.FadeOut: SettingUI(false); SplashManager.isfinished = false; StartCoroutine(theSplashManager.FadeOut(false, true)); yield return new WaitUntil(() => SplashManager.isfinished); break;
+            case CameraType.FlashIn: SettingUI(false); SplashManager.isfinished = false; StartCoroutine(theSplashManager.FadeIn(true, true)); yield return new WaitUntil(() => SplashManager.isfinished); break;
+            case CameraType.FlashOut: SettingUI(false); SplashManager.isfinished = false; StartCoroutine(theSplashManager.FadeOut(true, true)); yield return new WaitUntil(() => SplashManager.isfinished); break;
             case CameraType.ObjectFront: theCam.CameraTargetting(dialogues[lineCount].tf_Target); break;
             case CameraType.Reset:theCam.CameraTargetting(null, 0.05f, true, false); break;
         }

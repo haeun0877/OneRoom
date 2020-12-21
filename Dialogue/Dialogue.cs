@@ -6,6 +6,10 @@ public enum CameraType
 {
     ObjectFront,
     Reset,
+    FadeOut,
+    FadeIn,
+    FlashOut,
+    FlashIn,
 }
 
 
@@ -21,6 +25,9 @@ public class Dialogue
 
     [HideInInspector]
     public string[] contexts;
+
+    [HideInInspector]
+    public string[] spriteName;
 }
 
 [System.Serializable]
