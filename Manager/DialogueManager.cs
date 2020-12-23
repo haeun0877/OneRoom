@@ -26,6 +26,7 @@ public class DialogueManager : MonoBehaviour
     CameraController theCam;
     SpriteManager theSpriteManager;
     SplashManager theSplashManager;
+    CutSceneManager theCutSceneManager;
 
     private void Start()
     {
@@ -33,6 +34,7 @@ public class DialogueManager : MonoBehaviour
         theCam = FindObjectOfType<CameraController>();
         theSpriteManager = FindObjectOfType<SpriteManager>();
         theSplashManager = FindObjectOfType<SplashManager>();
+        theCutSceneManager = FindObjectOfType<CutSceneManager>();
     }
 
     private void Update()
@@ -58,7 +60,7 @@ public class DialogueManager : MonoBehaviour
                         }
                         else
                         {
-                            EndDialogue();
+                            StartCoroutine(EndDialogue());
                         }
                     }
                 }
@@ -87,12 +89,30 @@ public class DialogueManager : MonoBehaviour
             case CameraType.FlashOut: SettingUI(false); SplashManager.isfinished = false; StartCoroutine(theSplashManager.FadeOut(true, true)); yield return new WaitUntil(() => SplashManager.isfinished); break;
             case CameraType.ObjectFront: theCam.CameraTargetting(dialogues[lineCount].tf_Target); break;
             case CameraType.Reset:theCam.CameraTargetting(null, 0.05f, true, false); break;
+            case CameraType.ShowCutScene:
+                SettingUI(false); CutSceneManager.isFinished = false;
+                StartCoroutine(theCutSceneManager.CutSceneCoroutine(dialogues[lineCount].spriteName[contextCount].Trim(), true));
+                yield return new WaitUntil(() => CutSceneManager.isFinished);
+                break;
+            case CameraType.HideCutScene:
+                SettingUI(false); CutSceneManager.isFinished = false;
+                StartCoroutine(theCutSceneManager.CutSceneCoroutine(null, false));
+                yield return new WaitUntil(() => CutSceneManager.isFinished);
+                theCam.CameraTargetting(dialogues[lineCount].tf_Target);
+                break;
         }
         StartCoroutine(TypeWriter());
     }
 
-    void EndDialogue()
+    IEnumerator EndDialogue()
     {
+        if (theCutSceneManager.CheckCutScene())
+        {
+            CutSceneManager.isFinished = false;
+            StartCoroutine(theCutSceneManager.CutSceneCoroutine(null, false));
+            yield return new WaitUntil(() => CutSceneManager.isFinished);
+            theCam.CameraTargetting(dialogues[lineCount].tf_Target);
+        }
         isDIalogue = false;
         contextCount = 0;
         lineCount = 0;
@@ -105,9 +125,12 @@ public class DialogueManager : MonoBehaviour
 
     void ChaneSprite()
     {
-        if (dialogues[lineCount].spriteName[contextCount] != "")
+        if (dialogues[lineCount].tf_Target != null)
         {
-            StartCoroutine(theSpriteManager.SpriteChangeSoroutine(dialogues[lineCount].tf_Target, dialogues[lineCount].spriteName[contextCount].Trim()));
+            if (dialogues[lineCount].spriteName[contextCount] != "")
+            {
+                StartCoroutine(theSpriteManager.SpriteChangeSoroutine(dialogues[lineCount].tf_Target, dialogues[lineCount].spriteName[contextCount].Trim()));
+            }
         }
     }
 
@@ -115,7 +138,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (dialogues[lineCount].voiceName[contextCount] != "")
         {
-            SoundManager.instance.PlaySound(dialogues[lineCount].voiceName[contextCount], 2);
+            SoundManager.instance.PlaySound(dialogues[lineCount].voiceName[contextCount].Trim(), 2);
 
         }
     }
